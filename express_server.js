@@ -12,12 +12,10 @@ const urlDatabase = {
 
 // Middleware to parse the body of incoming requests
 app.use(express.urlencoded({ extended: true }));
-app.post("/urls", (req, res) => {
-    const longURL = req.body.longURL; // retrieve the URL from the form data
-    const shortURL = generateRandomString(); // generate a short URL for the long URL
-    urlDatabase[shortURL] = longURL; // add the new URL to the database
-    res.redirect(`/urls/${shortURL}`); // redirect to the page for the new URL
-  });
+    app.post("/urls", (req, res) => {
+        console.log(req.body); // Log the POST request body to the console
+        res.send("Ok"); // Respond with 'Ok' (we will replace this)
+      });
 
 
 // Route to display the form for creating a new shortened URL
