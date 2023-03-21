@@ -13,6 +13,13 @@ const urlDatabase = {
 // Middleware to parse the body of incoming requests
 app.use(express.urlencoded({ extended: true }));
 
+// POST requests to update a URL resource
+app.post('/urls/:id', (req, res) => {
+    const urlId = req.params.id;
+    urlDatabase[urlId] = req.body.longURL;
+    res.redirect('/urls');   // redirect the client back to the urls_index page
+  });
+
 // POST requests to delete a URL resource
 app.post('/urls/:id/delete', (req, res) => {
     const urlId = req.params.id;
