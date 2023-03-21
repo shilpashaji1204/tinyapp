@@ -13,11 +13,18 @@ const urlDatabase = {
 // Middleware to parse the body of incoming requests
 app.use(express.urlencoded({ extended: true }));
 
+// POST requests to delete a URL resource
+app.post('/urls/:id/delete', (req, res) => {
+    const urlId = req.params.id;
+    delete urlDatabase[urlId];  // use the delete operator to remove the URL
+    res.redirect('/urls');   // redirect the client back to the urls_index page
+});
+
 app.post("/urls", (req, res) => {
     console.log(req.body); // Log the POST request body to the console
     res.send("Ok"); // Respond with 'Ok' (we will replace this)
   });
-  
+
 // Route to display the form for creating a new shortened URL
 app.get("/urls/new", (req, res) => {
     res.render("urls_new");  // Render the EJS template
