@@ -9,9 +9,8 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 }; 
 
-app.get("/urls", (req, res) => {
-    const templateVars = { urls: urlDatabase };
-    res.render("urls_index", templateVars);
+  app.get("/urls/new", (req, res) => {
+    res.render("urls_new");
   });
 
   app.get("/urls/:id", (req, res) => {
@@ -19,6 +18,11 @@ app.get("/urls", (req, res) => {
     res.render("urls_show", templateVars);
   });
 
+  app.get("/urls", (req, res) => {
+    const templateVars = { urls: urlDatabase };
+    res.render("urls_index", templateVars);
+  });
+  
 app.get("/", (req, res) => {
     res.send("Hello!");
 });
