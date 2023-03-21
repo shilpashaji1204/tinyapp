@@ -1,5 +1,8 @@
 const express = require("express");
+const cookieParser = require("cookie-parser");
 const app = express();
+app.use(cookieParser());
+
 const PORT = 8080; // default port 8080
 
 app.set("view engine", "ejs");  // Set EJs as the templating engine
@@ -12,6 +15,12 @@ const urlDatabase = {
 
 // Middleware to parse the body of incoming requests
 app.use(express.urlencoded({ extended: true }));
+
+app.post("/login", (req, res) => {
+    const { username } = req.body;
+    res.cookie("username", username);
+    res.redirect("/urls");
+  });
 
 // POST requests to update a URL resource
 app.post('/urls/:id', (req, res) => {
