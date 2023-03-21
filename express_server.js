@@ -9,6 +9,8 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 }; 
 
+app.use(express.urlencoded({ extended: true }));
+
   app.get("/urls/new", (req, res) => {
     res.render("urls_new");
   });
@@ -22,7 +24,7 @@ const urlDatabase = {
     const templateVars = { urls: urlDatabase };
     res.render("urls_index", templateVars);
   });
-  
+
 app.get("/", (req, res) => {
     res.send("Hello!");
 });
