@@ -12,34 +12,33 @@ const urlDatabase = {
 
 // Middleware to parse the body of incoming requests
 app.use(express.urlencoded({ extended: true }));
-    app.post("/urls", (req, res) => {
-        console.log(req.body); // Log the POST request body to the console
-        res.send("Ok"); // Respond with 'Ok' (we will replace this)
-      });
 
-
+app.post("/urls", (req, res) => {
+    console.log(req.body); // Log the POST request body to the console
+    res.send("Ok"); // Respond with 'Ok' (we will replace this)
+  });
+  
 // Route to display the form for creating a new shortened URL
-  app.get("/urls/new", (req, res) => {
+app.get("/urls/new", (req, res) => {
     res.render("urls_new");  // Render the EJS template
   });
 
-  // Route to display the details of a specific shortened URL
-  app.get("/urls/:id", (req, res) => {
-    const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] };
-    res.render("urls_show", templateVars);  // Render the EJS template with data
-});
+    // Route to display the details of a specific shortened URL
+    app.get("/urls/:id", (req, res) => {
+        const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] };
+        res.render("urls_show", templateVars);  // Render the EJS template with data
+    });
 
 // Route to display all shortened URLs in the database
-  app.get("/urls", (req, res) => {
+app.get("/urls", (req, res) => {
     const templateVars = { urls: urlDatabase };
     res.render("urls_index", templateVars);  // Render the EJS template with data
   });
 
-  // Root route that simply displays "Hello!"
+    // Root route that simply displays "Hello!"
 app.get("/", (req, res) => {
     res.send("Hello!");
 });
-
 
 // Route that returns the JSON representation of the database
 app.get("/urls.json", (req, res) => {
@@ -51,13 +50,27 @@ app.get("/hello", (req, res) => {
     res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
+// Route to handle new short URL creation
+app.post("/urls", (req, res) => {
+    const shortURL = generateRandomString();
+    const longURL = req.body.longURL;
+    urlDatabase[shortURL] = longURL;
+    res.redirect(`/urls/${shortURL}`);
+  });
+
+// Route to redirect short URLs to their long URLs
+  app.get("/u/:id", (req, res) => {
+    const longURL = urlDatabase[req.params.id];
+    res.redirect(longURL);
+  });
 
 // Start the server and listen for incoming requests
 app.listen(PORT, () => {
     console.log(`Example app listening on port ${PORT}!`);
 });
 
-function generateRandomString() {
+// Function to generate a random 6-character string
+  function generateRandomString() {
     let result = '';
     const characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
     const charactersLength = characters.length;
