@@ -29,6 +29,12 @@ app.post("/login", (req, res) => {
     res.render("urls_index", templateVars);
 });
 
+app.post('/logout', (req, res) => {
+    res.clearCookie('username');
+    res.redirect('/urls');
+  });
+  
+
 // POST requests to update a URL resource
 app.post('/urls/:id', (req, res) => {
     const urlId = req.params.id;
