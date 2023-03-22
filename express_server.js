@@ -21,6 +21,13 @@ app.post("/login", (req, res) => {
     res.cookie("username", username);
     res.redirect("/urls");
   });
+  app.get("/urls", (req, res) => {
+    const templateVars = {
+        urls: urlDatabase,
+        username: req.cookies.username
+    };
+    res.render("urls_index", templateVars);
+});
 
 // POST requests to update a URL resource
 app.post('/urls/:id', (req, res) => {
