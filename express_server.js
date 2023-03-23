@@ -83,16 +83,12 @@ app.post("/login", (req, res) => {
     res.cookie("username", username);
     res.redirect("/urls");
   });
- // app.get("/urls", (req, res) => {
-//    const templateVars = {
-//        urls: urlDatabase,
-//        username: req.cookies.username
-//    };
-//    res.render("urls_index", templateVars);
-// });
+  app.get('/login', function(req, res) {
+    res.render('login');
+  });
 
 app.post('/logout', (req, res) => {
-    res.clearCookie('username');
+    res.clearCookie('user_id');
     res.redirect('/urls');
   });
   
@@ -111,10 +107,6 @@ app.post('/urls/:id/delete', (req, res) => {
     res.redirect('/urls');   // redirect the client back to the urls_index page
 });
 
-// app.post("/urls", (req, res) => {
-//     console.log(req.body); // Log the POST request body to the console
-//     res.send("Ok"); // Respond with 'Ok' (we will replace this)
-//   });
 
 // Route to display the form for creating a new shortened URL
 app.get("/urls/new", (req, res) => {
