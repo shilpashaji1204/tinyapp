@@ -56,7 +56,7 @@ function urlsForUser(userId, urlDatabase)
   
 //Display the register form
 app.get('/register', (req, res) => {
-    res.render('register');
+    res.render('register', { user: req.user});
   });
  
   app.post("/register", (req, res) => {
@@ -95,7 +95,7 @@ app.get('/register', (req, res) => {
   });
 
   app.get('/login', function(req, res) {
-    res.render('login');
+    res.render('login', { user: req.user });
   });
 
 app.post('/logout', (req, res) => {
