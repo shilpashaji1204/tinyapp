@@ -1,5 +1,6 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
+const bcrypt = require('bcrypt');
 const app = express();
 app.use(cookieParser());
 
@@ -78,11 +79,21 @@ app.get('/register', (req, res) => {
     }
   });
 
-app.post("/login", (req, res) => {
-    const { username } = req.body;
-    res.cookie("username", username);
-    res.redirect("/urls");
+  app.post("/login", (req, res) => {
+    const { email, password }= req.body;
+    const user = getUserByEmail(email, users);
+  
+    if (!user || !bcrypt.compare(password, user.password)) {
+      res.status(403).send("Invalid email or password");
+    } else {
+        const id = user.id;
+        res.cookie("user_id", id);
+        res.redirect("/urls");
+    }
+  
+   
   });
+
   app.get('/login', function(req, res) {
     res.render('login');
   });
