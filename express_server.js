@@ -79,6 +79,12 @@ app.get('/register', (req, res) => {
     } else if (getUserByEmail(email, users)) {
       res.status(400).send("This email is already registered.");
     } else {
+        const hashedPassword = bcrypt.hashSync(password, 10);
+        const newUser = {
+            id,
+            email,
+            password: hashedPassword,
+          };
       users[id] = newUser;
       console.log(users);
       res.cookie("user_id", id);
@@ -158,7 +164,7 @@ app.get("/urls/new", requireLogin, (req, res) => {
     const shortURL = generateRandomString();
     urlDatabase[shortURL] = {
       longURL: req.body.longURL,
-      userID: req.session.user_id
+      userID: req.cookies.user_id
     };
     res.redirect(`/urls/${shortURL}`);
   });
@@ -184,13 +190,13 @@ app.get("/urls", (req, res) => {
     const url = urlDatabase[shortURL];
     if (!url) {
       res.status(404).render("error", { errorMessage: "Short URL not found" });
-    } else if (url.userID !== req.session.user_id) {
+    } else if (url.userID !== req.cookies.user_id) {
       res.status(403).render("error", { errorMessage: "Unauthorized access" });
     } else {
       const templateVars = {
         shortURL: shortURL,
         longURL: url.longURL,
-        user: users[req.session.user_id]
+        user: users[req.cookies.user_id]
       };
       res.render("urls_show", templateVars);
     }
@@ -201,7 +207,7 @@ app.get("/urls", (req, res) => {
     const url = urlDatabase[shortURL];
     if (!url) {
       res.status(404).render("error", { errorMessage: "Short URL not found" });
-    } else if (url.userID !== req.session.user_id) {
+    } else if (url.userID !== req.cookies.user_id) {
       res.status(403).render("error", { errorMessage: "Unauthorized access" });
     } else {
       urlDatabase[shortURL].longURL = req.body.longURL;
@@ -214,7 +220,7 @@ app.get("/urls", (req, res) => {
     const url = urlDatabase[shortURL];
     if (!url) {
       res.status(404).render("error", { errorMessage: "Short URL not found" });
-    } else if (url.userID !== req.session.user_id) {
+    } else if (url.userID !== req.cookies.user_id) {
       res.status(403).render("error", { errorMessage: "Unauthorized access" });
     } else {
       delete urlDatabase[shortURL];
