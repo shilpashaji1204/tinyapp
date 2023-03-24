@@ -168,7 +168,7 @@ app.post("/urls", (req, res) => {
 });
 
 // Route to display all shortened URLs in the database
-app.get("/urls", (req, res) => {
+app.get("/urls", requireLogin, (req, res) => {
     const userURLs = {};
     if (!req.session.user_id) {
         res.status(401).render("error", { errorMessage: "Unauthorized access" });
