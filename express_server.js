@@ -46,24 +46,14 @@ const database = {
 };
 
 
-// const urlsForUser = function (id, urlDatabase) {
-//     const userURLs = {};
-//     for (let shortURL in urlDatabase) {
-//         if (urlDatabase[shortURL].userID === id) {
-//             userURLs[shortURL] = urlDatabase[shortURL];
-//         }
-//     }
-//     return userURLs;
-// };
-
 app.get('/error', (req, res) => {
     const message = 'Oops! Something went wrong.';
     res.status(500).render('error', { message });
-  });
+});
 
 //Display the register form
 app.get('/register', (req, res) => {
-  
+
     if (req.session.user_id) {
         res.redirect('/urls');
     } else {
@@ -74,11 +64,7 @@ app.get('/register', (req, res) => {
 app.post("/register", (req, res) => {
     const id = generateRandomString();
     const { email, password } = req.body;
-    // const newUser = {
-    //     id,
-    //     email,
-    //     password,
-    // };
+
     if (!email || !password) {
         res.status(400).send("Please provide both email and password.");
     } else if (getUserByEmail(email, database)) {
@@ -190,7 +176,7 @@ app.get("/urls", requireLogin, (req, res) => {
         res.status(401).render("error", { errorMessage: "Unauthorized access" });
         return;
     }
-    
+
     const urls = getUserUrl(userID);
     console.log("++++++++++", urls);
     const templateVars = {
