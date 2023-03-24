@@ -1,7 +1,7 @@
 const express = require("express");
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
-const getUserByEmail = require("./helpers");
+const { getUserByEmail } = require("./helpers");
 const app = express();
 app.set("view engine", "ejs");  // Set EJs as the templating engine
 
