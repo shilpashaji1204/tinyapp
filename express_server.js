@@ -10,7 +10,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(cookieSession({
     name: 'session',
-    keys: ['key1', 'key2']
+    keys: ['secret-key']
 }));
 
 const PORT = 8080; // default port 8080
@@ -69,11 +69,11 @@ app.get('/register', (req, res) => {
 app.post("/register", (req, res) => {
     const id = generateRandomString();
     const { email, password } = req.body;
-    const newUser = {
-        id,
-        email,
-        password,
-    };
+    // const newUser = {
+    //     id,
+    //     email,
+    //     password,
+    // };
     if (!email || !password) {
         res.status(400).send("Please provide both email and password.");
     } else if (getUserByEmail(email, database)) {
@@ -102,8 +102,6 @@ app.post("/login", (req, res) => {
         req.session.user_id = id;
         res.redirect("/urls");
     }
-
-
 });
 
 app.get('/login', function (req, res) {
