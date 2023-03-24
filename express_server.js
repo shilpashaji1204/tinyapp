@@ -20,7 +20,7 @@ const PORT = 8080; // default port 8080
 const urlDatabase = {
     b6UTxQ: {
         longURL: "https://www.tsn.ca",
-        userID: "aJ48lW",
+        userID: "a1",
     },
     i3BoGr: {
         longURL: "https://www.google.ca",
@@ -33,28 +33,33 @@ const urlDatabase = {
 // Database
 
 const database = {
-    userRandomID: {
-        id: "userRandomID",
-        email: "user@example.com",
-        password: "purple-monkey-dinosaur",
+    a1: {
+        id: "a1",
+        email: "a@a.com",
+        password: "1234",
     },
     user2RandomID: {
         id: "user2RandomID",
-        email: "user2@example.com",
-        password: "dishwasher-funk",
+        email: "b@b.com",
+        password: "1234",
     },
 };
 
 
-const urlsForUser = function (id, urlDatabase) {
-    const userURLs = {};
-    for (let shortURL in urlDatabase) {
-        if (urlDatabase[shortURL].userID === id) {
-            userURLs[shortURL] = urlDatabase[shortURL];
-        }
-    }
-    return userURLs;
-};
+// const urlsForUser = function (id, urlDatabase) {
+//     const userURLs = {};
+//     for (let shortURL in urlDatabase) {
+//         if (urlDatabase[shortURL].userID === id) {
+//             userURLs[shortURL] = urlDatabase[shortURL];
+//         }
+//     }
+//     return userURLs;
+// };
+
+app.get('/error', (req, res) => {
+    const message = 'Oops! Something went wrong.';
+    res.status(500).render('error', { message });
+  });
 
 //Display the register form
 app.get('/register', (req, res) => {
@@ -150,6 +155,16 @@ const requireLogin = (req, res, next) => {
     }
 };
 
+const getUserUrl = (userID) => {
+    const userURLs = {};
+    for (const shortURL in urlDatabase) {
+        const url = urlDatabase[shortURL];
+        if (url.userID === userID) {
+            userURLs[shortURL] = url;
+        }
+    }
+    return userURLs;
+}
 // Route to display the form for creating a new shortened URL
 app.get("/urls/new", requireLogin, (req, res) => {
     const user = database[req.session.user_id]
@@ -169,20 +184,18 @@ app.post("/urls", (req, res) => {
 
 // Route to display all shortened URLs in the database
 app.get("/urls", requireLogin, (req, res) => {
-    const userURLs = {};
-    if (!req.session.user_id) {
+    const userID = req.session.user_id;
+
+    if (!userID) {
         res.status(401).render("error", { errorMessage: "Unauthorized access" });
         return;
     }
-    for (const shortURL in urlDatabase) {
-        const url = urlDatabase[shortURL];
-        if (url.userID === req.session.user_id) {
-            userURLs[shortURL] = url;
-        }
-    }
+    
+    const urls = getUserUrl(userID);
+    console.log("++++++++++", urls);
     const templateVars = {
-        urls: userURLs,
-        user: database[req.session.user_id]
+        urls,
+        user: database[userID]
     };
     res.render("urls_index", templateVars);
 });
@@ -197,7 +210,7 @@ app.get("/urls/:shortURL", (req, res) => {
         const templateVars = {
             shortURL: shortURL,
             longURL: url.longURL,
-            user: database[req.session.user_id]
+            user: database[req.session.user_id],
         };
         res.render("urls_show", templateVars);
     }
