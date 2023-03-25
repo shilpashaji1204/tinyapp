@@ -20,7 +20,7 @@ const PORT = 8080; // default port 8080
 const urlDatabase = {
     b6UTxQ: {
         longURL: "https://www.tsn.ca",
-        userID: "a1",
+        userID: "a1htf",
     },
     i3BoGr: {
         longURL: "https://www.google.ca",
@@ -104,6 +104,7 @@ app.get('/login', function (req, res) {
 });
 
 app.post('/logout', (req, res) => {
+
     req.session = null;
     res.redirect('/login');
 });
@@ -119,8 +120,9 @@ app.get("/u/:id", (req, res) => {
 });
 // POST requests to update a URL resource
 app.post('/urls/:id', (req, res) => {
-    const urlId = req.params.id;
-    urlDatabase[urlId] = req.body.longURL;
+    const shortURL = req.params.id;
+    const longURL = req.body.longURL;
+    urlDatabase[shortURL].longURL = longURL;
     res.redirect('/urls');   // redirect the client back to the urls_index page
 });
 
@@ -178,13 +180,14 @@ app.get("/urls", requireLogin, (req, res) => {
     }
 
     const urls = getUserUrl(userID);
-    console.log("++++++++++", urls);
+    console.log(urls);
     const templateVars = {
         urls,
         user: database[userID]
     };
     res.render("urls_index", templateVars);
 });
+
 app.get("/urls/:shortURL", (req, res) => {
     const shortURL = req.params.shortURL;
     const url = urlDatabase[shortURL];
