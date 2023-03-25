@@ -137,7 +137,8 @@ app.post('/urls/:id/delete', (req, res) => {
 const requireLogin = (req, res, next) => {
     const userId = req.session.user_id;
     if (!userId) {
-        res.status(401).render("error", { message: "You must be logged in to view this page " });
+        res.status(401).render("error", { message: "You must be logged in to view this page. Please <a href='/login'>login</a> to continue. " });
+        
     } else {
         next();
     }
