@@ -14,6 +14,7 @@ Screenshots
 
 <img width="680" alt="Createnewurl page" src="https://user-images.githubusercontent.com/121919958/227677717-063adc42-32ba-40b9-b729-9bb8aeb9a278.png">
 
+<img width="1384" alt="Newshortlink" src="https://user-images.githubusercontent.com/121919958/227689098-95c7c5c5-5180-422b-96ad-0d2369b8f98b.png">
 
 Getting Started 
 
