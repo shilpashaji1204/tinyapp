@@ -36,7 +36,7 @@ const database = {
     a1: {
         id: "a1",
         email: "a@a.com",
-        password: "1234",
+        password: bcrypt.hashSync("1234", 10),
     },
     user2RandomID: {
         id: "user2RandomID",
@@ -86,14 +86,25 @@ app.post("/register", (req, res) => {
 app.post("/login", (req, res) => {
     const { email, password } = req.body;
     const user = getUserByEmail(email, database);
-    if (!user || !bcrypt.compare(password, user.password)) {
-        res.status(403).send("Invalid email or password");
-    } else {
-        const id = user.id;
-        req.session.user_id = id;
-        res.redirect("/urls");
-    }
+      if (!user) {
+        return res.status(403).send("Username not found. Please register");
+      }
+      if (!bcrypt.compareSync(password, user.password)) {
+        return res.status(403).send("Username or password do not match.");
+      } else {
+    // if (!user || !bcrypt.compareSync(password, user.password)) {
+    //     res.status(403).send("Invalid email or password");
+    // } else {
+    //     const id = user.id;
+    //     req.session.user_id = id;
+    //     res.redirect("/urls");
+    // }
+    req.session.user_id = user.id;
+    console.log(req.session);
+    res.redirect("/urls");
+  }
 });
+
 
 app.get('/login', function (req, res) {
     if (req.session.user_id) {
@@ -113,36 +124,89 @@ app.post('/logout', (req, res) => {
 app.get("/u/:id", (req, res) => {
     const longURL = urlDatabase[req.params.id];
     if (longURL) {
-        res.redirect(longURL);
+        res.redirect(longURL.longURL);
     } else {
         res.status(404).render("error", { error: "This short URL does not exist." });
     }
-});
-// POST requests to update a URL resource
-app.post('/urls/:id', (req, res) => {
-    const shortURL = req.params.id;
-    const longURL = req.body.longURL;
-    urlDatabase[shortURL].longURL = longURL;
-    res.redirect('/urls');   // redirect the client back to the urls_index page
-});
-
-// POST requests to delete a URL resource
-app.post('/urls/:id/delete', (req, res) => {
-    const urlId = req.params.id;
-    delete urlDatabase[urlId];  // use the delete operator to remove the URL
-    res.redirect('/urls');   // redirect the client back to the urls_index page
 });
 
 // Middleware function to check if user is logged in
 const requireLogin = (req, res, next) => {
     const userId = req.session.user_id;
+    console.log(req.session);
     if (!userId) {
-        res.status(401).render("error", { message: "You must be logged in to view this page. Please <a href='/login'>login</a> to continue. " });
+        res.status(401).render("error", { error: "You must be logged in to view this page. Please <a href='/login'>login</a> to continue. " });
         
     } else {
         next();
     }
 };
+
+// Route to display the form for creating a new shortened URL
+app.get("/urls/new", requireLogin, (req, res) => {
+    const user = database[req.session.user_id]
+    const templateVars = { user }
+    res.render("urls_new", templateVars);  // Render the EJS template
+});
+
+app.get("/urls/:id", (req, res) => {
+    const shortURL = req.params.id;
+    const url = urlDatabase[shortURL];
+    const user = req.session.user_id;
+  
+    if (!user) {
+      const message = "You need to be logged in to view this page.";
+      res.status(401).render("error", { error: message });
+    } else if (!url)  {
+      const message = "The requested URL does not exist.";
+      res.status(403).render("error", { error: message });
+    } else if (user !== urlDatabase[shortURL].userID) {
+      const message = "You are not authorized to view this page.";
+      res.status(404).render("error", { error: message });
+    } else {
+      res.render("urls_show", { shortURL, longURL: url.longURL, user: database[user] });
+    }
+  });
+
+
+// POST requests to update a URL resource
+app.post('/urls/:id', (req, res) => {
+  const shortURL = req.params.id;
+  const longURL = req.body.longURL;
+  const user = req.session.user_id;
+
+  if (!user) {
+    const error = 'You need to be logged in to edit URLs.';
+    res.status(401).render('error', { error });
+  } else if (user !== urlDatabase[shortURL].userID) {
+    const error = 'You are not authorized to edit this URL.';
+    res.status(403).render('error', { error });
+  } else if (urlDatabase[shortURL]) {
+    urlDatabase[shortURL].longURL = longURL;
+    res.redirect('/urls');
+  } else {
+    const error = `Short URL ${shortURL} does not exist in the database.`;
+    res.status(404).render('error', { error });
+  }
+});
+
+// POST requests to delete a URL resource
+app.post('/urls/:id/delete', (req, res) => {
+    const urlId = req.params.id;
+    const user = req.session.user_id;
+  
+    if (!user) {
+      const error = 'You need to be logged in to delete URLs.';
+      res.status(401).render('error', { error });
+    } else if (user !== urlDatabase[urlId].userID) {
+      const error = 'You are not authorized to delete this URL.';
+      res.status(403).render('error', { error });
+    } else {
+      delete urlDatabase[urlId];
+      res.redirect('/urls');
+    }
+  });
+
 
 const getUserUrl = (userID) => {
     const userURLs = {};
@@ -154,12 +218,7 @@ const getUserUrl = (userID) => {
     }
     return userURLs;
 }
-// Route to display the form for creating a new shortened URL
-app.get("/urls/new", requireLogin, (req, res) => {
-    const user = database[req.session.user_id]
-    const templateVars = { user }
-    res.render("urls_new", templateVars);  // Render the EJS template
-});
+
 
 // Route to handle new short URL creation
 app.post("/urls", (req, res) => {
